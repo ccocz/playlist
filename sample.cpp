@@ -2,6 +2,7 @@
 #include "lib_playlist.h"
 
 int main() {
+  /*
   Player player;
   auto mishmash = player.createPlaylist("mishmash");
   auto whatAWonderfulWorld = player.openFile(File("audio|artist:Louis Armstrong|title:What a Wonderful World|"
@@ -9,8 +10,8 @@ int main() {
   auto cabaret = player.openFile(File("video|title:Cabaret|year:1972|Qvfcynlvat Pnonerg"));
   mishmash->add(whatAWonderfulWorld);
   mishmash->add(cabaret);
-  mishmash->play();
-  /*
+  mishmash->play();*/
+
   Player player;
 
   auto mishmash = player.createPlaylist("mishmash");
@@ -48,7 +49,7 @@ int main() {
   armstrong->setMode(createOddEvenMode());
   mishmash->setMode(createSequenceMode());
   mishmash->play();
-
+  /*
   try {
     auto unsupported = player.openFile(File("mp3|artist:Unsupported|title:Unsupported|Content"));
   } catch (PlayerException const& e) {
@@ -65,7 +66,6 @@ int main() {
     auto corrupted = player.openFile(File("audio|artist:Louis Armstrong|title:Hello, Dolly!|%#!@*&"));
   } catch (PlayerException const& e) {
     std::cout << e.what() << std::endl;
-  }
-*/
+  }*/
   return 0;
 }

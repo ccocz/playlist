@@ -3,6 +3,15 @@
 
 int main() {
   Player player;
+  auto mishmash = player.createPlaylist("mishmash");
+  auto whatAWonderfulWorld = player.openFile(File("audio|artist:Louis Armstrong|title:What a Wonderful World|"
+                                                  "I see trees of green, red roses too..."));
+  auto cabaret = player.openFile(File("video|title:Cabaret|year:1972|Qvfcynlvat Pnonerg"));
+  mishmash->add(whatAWonderfulWorld);
+  mishmash->add(cabaret);
+  mishmash->play();
+  /*
+  Player player;
 
   auto mishmash = player.createPlaylist("mishmash");
   auto armstrong = player.createPlaylist("armstrong");
@@ -57,6 +66,6 @@ int main() {
   } catch (PlayerException const& e) {
     std::cout << e.what() << std::endl;
   }
-
+*/
   return 0;
 }

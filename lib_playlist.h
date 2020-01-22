@@ -9,11 +9,18 @@
 #include <random>
 
 //todo: watch for const refs
+//todo: not reference
+//todo: cycle
 
-class PlayerException {
+class PlayerException : std::exception {
+private:
+  std::string error;
 public:
-  [[nodiscard]] std::string what() const {
-    return std::__cxx11::string();
+  [[nodiscard]] const char * what() const noexcept override {
+    return error.c_str();
+  }
+  explicit PlayerException(const std::string &message) {
+    error = message;
   }
 };
 
@@ -39,13 +46,13 @@ public:
   }
 };
 
-class Song : public Track {
+class Audio : public Track {
 private:
   std::string artist;
   std::string title;
   std::string content;
 public:
-  explicit Song(const std::string &name) : Track(name) {
+  explicit Audio(const std::string &name) : Track(name) {
     auto tokens = get_tokens();
     artist = *(std::find(tokens.begin(), tokens.end(), "artist") + 1);
     title = *(std::find(tokens.begin(), tokens.end(), "title") + 1);
@@ -53,11 +60,11 @@ public:
   }
   void play() override {
     auto tokens = get_tokens();
-    std::cout << "Song [" << artist << ", " << title << "]: " << content << std::endl;
+    std::cout << "Audio [" << artist << ", " << title << "]: " << content << std::endl;
   }
 };
 
-class Movie : public Track {
+class Video : public Track {
 private:
   std::string title;
   std::string year;
@@ -76,14 +83,14 @@ private:
     }
   }
 public:
-  explicit Movie(const std::string &name) : Track(name) {
+  explicit Video(const std::string &name) : Track(name) {
     auto tokens = get_tokens();
     title = *(std::find(tokens.begin(), tokens.end(), "title") + 1);
     year = *(std::find(tokens.begin(), tokens.end(), "year") + 1);
     content = tokens.back();
   }
   void play() override {
-    std:: cout << "Movie [" << title << ", " << year << "]: ";
+    std:: cout << "Video [" << title << ", " << year << "]: ";
     decode(content);
     std::cout << std::endl;
   }
@@ -117,7 +124,6 @@ public:
   }
 };
 
-//todo:not reference
 class OddEvenMode : public Mode {
 public:
   OddEvenMode() = default;
@@ -132,10 +138,6 @@ public:
     return ordered;
   }
 };
-
-//todo : omit attributes of track
-//todo: maybe friends?
-//todo: cycle
 
 Mode *createSequenceMode() {
   return new SequenceMode;
@@ -185,12 +187,28 @@ public:
 class File {
 private:
   std::string description;
+  const std::string valid = ",.!?':;-";
 public:
   explicit File(const std::string &name) {
     description = name;
   }
+  bool isCorrupt() {
+    return std::count(description.begin(), description.end(), '|') < 2;
+  }
   bool isAudio() {
-    return description[0] == 'a';
+    return description.substr(0, description.find('|')) == "audio";
+  }
+  bool isVideo() {
+    return description.substr(0, description.find('|')) == "video";
+  }
+  bool isContentCorrupt() {
+    for (int i = (int)description.size() - 1; i >= 0 && description[i] != '|'; i--) {
+      if (!isalpha(description[i]) && !isdigit(description[i]) && valid.find(description[i]) == std::string::npos
+          && !std::isspace(description[i])) {
+        return true;
+      }
+    }
+    return false;
   }
   std::string getDescription() {
     return description;
@@ -200,10 +218,23 @@ public:
 class Player {
 public:
   Track *openFile(File file) {
-    if (file.isAudio()) {
-      return new Song(file.getDescription());
+    if (file.isCorrupt()) {
+      throw PlayerException("corrupt file");
+    }
+    else if (file.isAudio()) {
+      if (!file.isContentCorrupt()) {
+        return new Audio(file.getDescription());
+      } else {
+        throw PlayerException("corrupt content");
+      }
+    } else if (file.isVideo()) {
+      if (!file.isContentCorrupt()) {
+        return new Video(file.getDescription());
+      } else {
+        throw PlayerException("corrupt content");
+      }
     } else {
-      return new Movie(file.getDescription());
+      throw PlayerException("unsupported type");
     }
   }
   Playlist *createPlaylist(const std::string &name) {

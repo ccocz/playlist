@@ -2,14 +2,18 @@
 
 void Video::decode(const std::string &s) {
     for (char i : s) {
-        bool upper = isupper(i);
-        unsigned char c = tolower(i);
-        c += 13;
-        c -= 26 * (c > 'z');
-        if (upper) {
-            std::cout << (char)toupper(c);
-        } else {
+        if (isalpha(i)) {
+          bool upper = isupper(i);
+          unsigned char c = tolower(i);
+          c += 13;
+          c -= 26 * (c > 'z');
+          if (upper) {
+            std::cout << (char) toupper(c);
+          } else {
             std::cout << c;
+          }
+        } else {
+          std::cout << i;
         }
     }
 }

@@ -2,6 +2,7 @@
 #define PLAYLIST_LIB_PLAYLIST_H
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <sstream>
 #include <list>
@@ -19,8 +20,8 @@ public:
   [[nodiscard]] const char * what() const noexcept override {
     return error.c_str();
   }
-  explicit PlayerException(const std::string &message) {
-    error = message;
+  explicit PlayerException(std::string message) {
+    error = std::move(message);
   }
 };
 
@@ -29,6 +30,7 @@ private:
   std::vector<std::string> tokens;
 public:
   virtual void play() = 0;
+  virtual bool play(Track*) = 0;
   Track() = default;
   std::vector<std::string> &get_tokens() {
     return tokens;
@@ -62,6 +64,9 @@ public:
     auto tokens = get_tokens();
     std::cout << "Audio [" << artist << ", " << title << "]: " << content << std::endl;
   }
+  bool play(Track *track) override {
+    return false;
+  }
 };
 
 class Video : public Track {
@@ -94,6 +99,9 @@ public:
     decode(content);
     std::cout << std::endl;
   }
+  bool play(Track *track) override {
+    return false;
+  }
 };
 
 class Mode {
@@ -104,7 +112,7 @@ public:
 
 class SequenceMode : public Mode {
 public:
-  SequenceMode() = default;
+  SequenceMode() : Mode() {}
   std::vector <Track*> re_arrange(const std::vector <Track*> &v) override {
     return v;
   }
@@ -126,7 +134,7 @@ public:
 
 class OddEvenMode : public Mode {
 public:
-  OddEvenMode() = default;
+  OddEvenMode() : Mode() {}
   std::vector <Track*> re_arrange(const std::vector <Track*> &v) override {
     std::vector <Track*> ordered;
     for (int i = 1; i < v.size(); i += 2) {
@@ -162,10 +170,18 @@ public:
     this->name = name;
   }
   void add(Track *track) {
-    list.push_back(track);
+    if (!(track->play(this))) {
+      list.push_back(track);
+    } else {
+      throw PlayerException("cycle detected");
+    }
   }
   void add(Track *track, int pos) {
-    list.insert(list.begin() + pos, track);
+    if (!(track->play(this))) {
+      list.insert(list.begin() + pos, track);
+    } else {
+      throw PlayerException("cycle detected");
+    }
   }
   void remove() {
     list.pop_back();
@@ -178,6 +194,14 @@ public:
     for (auto x : mode->re_arrange(list)) {
       x->play();
     }
+  }
+  bool play(Track *track) override {
+    bool found = false;
+    for (auto x : mode->re_arrange(list)) {
+      found |= (x == track);
+      found |= x->play(track);
+    }
+    return found;
   }
   void setMode(Mode *new_mode) {
     mode = new_mode;
@@ -222,20 +246,17 @@ public:
       throw PlayerException("corrupt file");
     }
     else if (file.isAudio()) {
-      if (!file.isContentCorrupt()) {
-        return new Audio(file.getDescription());
-      } else {
+      if (file.isContentCorrupt()) {
         throw PlayerException("corrupt content");
       }
+      return new Audio(file.getDescription());
     } else if (file.isVideo()) {
-      if (!file.isContentCorrupt()) {
-        return new Video(file.getDescription());
-      } else {
+      if (file.isContentCorrupt()) {
         throw PlayerException("corrupt content");
       }
-    } else {
-      throw PlayerException("unsupported type");
+      return new Video(file.getDescription());
     }
+    throw PlayerException("unsupported type");
   }
   Playlist *createPlaylist(const std::string &name) {
     return new Playlist(name);

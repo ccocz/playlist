@@ -1,6 +1,7 @@
 #ifndef PLAYLIST_VIDEO_H
 #define PLAYLIST_VIDEO_H
 
+#include <algorithm>
 #include <iostream>
 #include "track.h"
 

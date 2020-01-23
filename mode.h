@@ -2,6 +2,7 @@
 #define PLAYLIST_MODE_H
 
 #include <random>
+#include <algorithm>
 #include "track.h"
 
 class Mode {

@@ -2,6 +2,7 @@
 #define PLAYLIST_FILE_H
 
 #include <string>
+#include <algorithm>
 
 class File {
 private:

@@ -1,8 +1,9 @@
 #ifndef PLAYLIST_AUDIO_H
 #define PLAYLIST_AUDIO_H
 
-#include <iostream>
 #include "track.h"
+#include <algorithm>
+#include <iostream>
 
 class Audio : public Track {
 private:

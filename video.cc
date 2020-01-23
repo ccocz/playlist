@@ -32,9 +32,5 @@ void Video::play() {
 }
 
 bool Video::play(Track *track) {
-    return false;
+    return this == track;
 }
-
-
-
-

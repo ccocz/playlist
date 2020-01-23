@@ -13,6 +13,6 @@ void Audio::play() {
 }
 
 bool Audio::play(Track *track) {
-    return false;
+    return this == track;
 }
 

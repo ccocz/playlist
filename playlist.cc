@@ -1,19 +1,20 @@
 #include "playlist.h"
+#include <memory>
 
 Playlist::Playlist(const std::string &name) : Track(name) {
     this->name = name;
 }
 
-void Playlist::add(Track *track) {
-    if (!(track->play(this))) {
+void Playlist::add(const std::shared_ptr<Track> &track) {
+    if (track.get() != this && !(track->play(shared_from_this()))) {
         list.push_back(track);
     } else {
         throw PlayerException("cycle detected");
     }
 }
 
-void Playlist::add(Track *track, int pos) {
-    if (!(track->play(this))) {
+void Playlist::add(const std::shared_ptr<Track> &track, int pos) {
+  if (!(track->play(shared_from_this()))) {
         list.insert(list.begin() + pos, track);
     } else {
         throw PlayerException("cycle detected");
@@ -35,7 +36,7 @@ void Playlist::play() {
     }
 }
 
-bool Playlist::play(Track *track) {
+bool Playlist::play(const std::shared_ptr<Track> &track) {
     bool found = false;
     for (auto x : mode->re_arrange(list)) {
         found |= (x == track);
@@ -44,8 +45,6 @@ bool Playlist::play(Track *track) {
     return found;
 }
 
-void Playlist::setMode(Mode *new_mode) {
+void Playlist::setMode(const std::shared_ptr<Mode> &new_mode) {
     mode = new_mode;
 }
-
-

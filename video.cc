@@ -31,6 +31,6 @@ void Video::play() {
     std::cout << std::endl;
 }
 
-bool Video::play(Track *track) {
-    return this == track;
+bool Video::play(const std::shared_ptr<Track> &track) {
+    return this == track.get();
 }

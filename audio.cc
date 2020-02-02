@@ -12,7 +12,7 @@ void Audio::play() {
     std::cout << "Audio [" << artist << ", " << title << "]: " << content << std::endl;
 }
 
-bool Audio::play(Track *track) {
-    return this == track;
+bool Audio::play(const std::shared_ptr<Track> &track) {
+    return this == track.get();
 }
 

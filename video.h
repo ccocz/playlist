@@ -14,7 +14,7 @@ private:
 public:
     explicit Video(const std::string &name);
     void play() override;
-    bool play(Track *track) override;
+    bool play(const std::shared_ptr<Track> &track) override;
 };
 
 #endif //PLAYLIST_VIDEO_H

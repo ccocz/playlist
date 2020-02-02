@@ -7,11 +7,12 @@
 #include "audio.h"
 #include "video.h"
 #include "playlist.h"
+#include <memory>
 
 class Player {
 public:
-    Track *openFile(File file);
-    Playlist *createPlaylist(const std::string &name);
+    std::shared_ptr<Track> openFile(File file);
+    std::shared_ptr<Playlist> createPlaylist(const std::string &name);
 };
 
 #endif //PLAYLIST_PLAYER_H

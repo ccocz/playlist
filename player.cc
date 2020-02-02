@@ -1,6 +1,7 @@
 #include "player.h"
+#include <memory>
 
-Track *Player::openFile(File file) {
+std::shared_ptr<Track> Player::openFile(File file) {
     if (file.isCorrupt()) {
         throw PlayerException("corrupt file");
     }
@@ -8,16 +9,16 @@ Track *Player::openFile(File file) {
         if (file.isContentCorrupt()) {
             throw PlayerException("corrupt content");
         }
-        return new Audio(file.getDescription());
+        return std::make_shared <Audio> (file.getDescription());
     } else if (file.isVideo()) {
         if (file.isContentCorrupt()) {
             throw PlayerException("corrupt content");
         }
-        return new Video(file.getDescription());
+        return std::make_shared <Video> (file.getDescription());
     }
     throw PlayerException("unsupported type");
 }
 
-Playlist *Player::createPlaylist(const std::string &name) {
-    return new Playlist(name);
+std::shared_ptr<Playlist> Player::createPlaylist(const std::string &name) {
+  return std::make_shared<Playlist>(name);
 }
